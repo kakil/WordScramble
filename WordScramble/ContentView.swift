@@ -16,6 +16,19 @@ struct ContentView: View {
             Text("Hello, world!")
         }
         .padding()
+        
+        
+    }
+    
+    func loadFile() {
+        // Search the directory for the file
+        if let fileURL = Bundle.main.url(forResource: "some-file", withExtension: "txt") {
+            //file found
+            if let fileContents = try? String(contentsOf: fileURL) {
+                // we load the file
+                // fileContents is a regular string and we can now use it.
+            }
+        }
     }
 }
 
