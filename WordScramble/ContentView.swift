@@ -17,6 +17,8 @@ struct ContentView: View {
     @State private var errorMessage = ""
     @State private var showingError = false
     
+    @State private var score = 0
+    
     
     var body: some View {
         NavigationView {
@@ -34,8 +36,15 @@ struct ContentView: View {
                         }
                     }
                 }
+                
+                Section {
+                    Text("Score: \(score)")
+                }
             }
             .navigationTitle(rootWord)
+            .toolbar {
+                Button("New Game", action: startGame)
+            }
             .onSubmit(addNewWord)
             .onAppear(perform: startGame)
             .alert(errorTitle, isPresented: $showingError) {
@@ -52,6 +61,16 @@ struct ContentView: View {
         guard answer.count > 0 else { return }
         
         // Extra validation to come
+        guard isLongerThanThreeWords(word: answer) else {
+            wordError(title: "Word is too short", message: "Create a longer word!")
+            return
+        }
+        
+        guard !isSameWord(word: answer) else {
+            wordError(title: "Same word", message: "You can't use the same word!")
+            return
+        }
+        
         guard isOriginal(word: answer) else {
             wordError(title: "Word used already", message: "Be more original")
             return
@@ -67,14 +86,18 @@ struct ContentView: View {
             return
         }
         
+        
+        
         withAnimation {
+            score += 1
             usedWords.insert(answer, at: 0)
         }
         newWord = ""
     }
     
     func startGame() {
-        
+        score = 0
+        usedWords.removeAll()
         if let startWordsURL = Bundle.main.url(forResource: "start", withExtension: "txt") {
             if let startWords = try? String(contentsOf: startWordsURL) {
                 let allWords = startWords.components(separatedBy: "\n")
@@ -115,6 +138,25 @@ struct ContentView: View {
         errorTitle = title
         errorMessage = message
         showingError = true
+    }
+    
+    func isLongerThanThreeWords(word: String) -> Bool {
+        
+        if word.utf16.count < 4 {
+            return false
+        } else {
+            return true
+        }
+    }
+    
+    func isSameWord(word: String) -> Bool {
+        
+        if word == rootWord {
+            print("word: \(word), newWord: \(newWord)")
+            return true
+        } else {
+            return false
+        }
     }
     
 }
